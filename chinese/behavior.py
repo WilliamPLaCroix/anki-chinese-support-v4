@@ -1,21 +1,21 @@
 # Copyright © 2012-2015 Thomas TEMPÉ <thomas.tempe@alysse.org>
 # Copyright © 2017-2020 Joseph Lorimer <joseph@lorimer.me>
 # Copyright © 2020 Joe Minicucci <https://joeminicucci.com>
+# Copyright © 2023-2024 Gustaf Carefall <https://github.com/Gustaf-C>
 #
-# This file is part of Chinese Support 3.
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Affero General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
 #
-# Chinese Support 3 is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by the Free
-# Software Foundation, either version 3 of the License, or (at your option) any
-# later version.
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Affero General Public License for more details.
 #
-# Chinese Support 3 is distributed in the hope that it will be useful, but
-# WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-# FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
-# more details.
-#
-# You should have received a copy of the GNU General Public License along with
-# Chinese Support 3.  If not, see <https://www.gnu.org/licenses/>.
+# You should have received a copy of the GNU Affero General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
 
 from .color import colorize, colorize_dict, colorize_fuse
 from .freq import get_frequency
@@ -186,6 +186,23 @@ def fill_transcript(hanzi, note):
 
     return n_filled
 
+def fill_ex_transcript(hanzi, note):
+    n_filled = 0
+    separated = split_hanzi(hanzi)
+
+    for key, target, type_ in [
+        ('pinyinEx', 'pinyinEx', 'simp'),
+    ]:
+        if get_first(config['fields'][key], note) == '':
+            trans = colorize(transcribe(separated, target, type_), target)
+            trans = hide(trans, no_tone(trans))
+            set_all(config['fields'][key], note, to=trans)
+            n_filled += 1
+        else:
+            reformat_transcript(note, key, target)
+
+    return n_filled
+
 
 def reformat_transcript(note, group, target):
     if target == 'bopomofo':
@@ -297,6 +314,9 @@ def fill_ruby(hanzi, note, trans_group, ruby_group):
     elif trans_group in ['pinyin', 'pinyinTaiwan']:
         field = get_first(config['fields'][trans_group], note)
         trans = sanitize_transcript(field, 'pinyin', grouped=False)
+    elif trans_group in ['pinyinEx']:
+        field = get_first(config['fields'][trans_group], note)
+        trans = sanitize_transcript(field, 'pinyinEx', grouped=False)
     elif trans_group == 'cantonese':
         field = get_first(config['fields'][trans_group], note)
         trans = sanitize_transcript(field, 'jyutping', grouped=False)
@@ -319,13 +339,24 @@ def fill_all_rubies(hanzi, note):
         ('pinyinTaiwan', 'rubyPinyinTaiwan'),
         ('cantonese', 'rubyCantonese'),
         ('bopomofo', 'rubyBopomofo'),
+
     ]:
+        fill_ruby(hanzi, note, trans_group, ruby_group)
+
+def fill_ex_rubies(hanzi, note):
+    for trans_group in ['pinyinEx']:
+        if has_any_field(config['fields'][trans_group], note):
+            fill_ruby(hanzi, note, trans_group, 'rubyEx')
+            break
+
+    for trans_group, ruby_group in [('pinyinEx', 'rubyEx')]:
         fill_ruby(hanzi, note, trans_group, ruby_group)
 
 
 def update_fields(note, focus_field, fields):
     copy = dict(note)
     hanzi = get_first(config['fields']['hanzi'], copy)
+    simp_exp = get_first(config['fields']['simpEx'], copy)
     if not hanzi:
         return False
     hanzi = cleanup(hanzi)
@@ -340,6 +371,7 @@ def update_fields(note, focus_field, fields):
     if focus_field in transcript_fields:
         fill_color(hanzi, copy)
         fill_all_rubies(hanzi, copy)
+        fill_ex_rubies(simp_exp, copy)
 
     if focus_field in config['fields']['hanzi']:
         if copy[focus_field]:
@@ -347,12 +379,14 @@ def update_fields(note, focus_field, fields):
             fill_all_defs(hanzi, copy)
             fill_classifiers(hanzi, copy)
             fill_transcript(hanzi, copy)
+            fill_ex_transcript(simp_exp, copy)
             fill_trad(hanzi, copy)
             fill_color(hanzi, copy)
             fill_sound(hanzi, copy)
             fill_simp(hanzi, copy)
             fill_frequency(hanzi, copy)
             fill_all_rubies(hanzi, copy)
+            fill_ex_rubies(simp_exp, copy)
             fill_silhouette(hanzi, copy)
             fill_usage(hanzi, copy)
         else:

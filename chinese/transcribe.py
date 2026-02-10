@@ -1,20 +1,20 @@
 # Copyright © 2012 Thomas TEMPÉ <thomas.tempe@alysse.org>
 # Copyright © 2017-2019 Joseph Lorimer <joseph@lorimer.me>
+# Copyright © 2023-2024 Gustaf Carefall <https://github.com/Gustaf-C>
 #
-# This file is part of Chinese Support 3.
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Affero General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
 #
-# Chinese Support 3 is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by the Free
-# Software Foundation, either version 3 of the License, or (at your option) any
-# later version.
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Affero General Public License for more details.
 #
-# Chinese Support 3 is distributed in the hope that it will be useful, but
-# WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-# FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
-# more details.
-#
-# You should have received a copy of the GNU General Public License along with
-# Chinese Support 3.  If not, see <https://www.gnu.org/licenses/>.
+# You should have received a copy of the GNU Affero General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
 
 from re import findall, IGNORECASE, search, split, sub
 from unicodedata import lookup, name, normalize
@@ -60,7 +60,7 @@ def is_sentence(s):
 def transcribe(words, target, type_):
     assert isinstance(words, list)
 
-    if target == 'pinyin':
+    if target in ['pinyin', 'pinyinEx']:
         prefer_tw = False
     elif target in ['pinyin_tw', 'bopomofo']:
         prefer_tw = True
@@ -79,7 +79,7 @@ def transcribe(words, target, type_):
             transcribed.append(text)
             continue
 
-        if target in ['pinyin', 'pinyin_tw', 'bopomofo']:
+        if target in ['pinyin', 'pinyinEx', 'pinyin_tw', 'bopomofo']:
             s = dictionary.get_pinyin(text, type_, prefer_tw)
         elif target == 'jyutping':
             s = dictionary.get_cantonese(text, type_)
@@ -93,7 +93,7 @@ def transcribe(words, target, type_):
 
 
 def transcribe_char(hanzi, target, type_):
-    if target == 'pinyin':
+    if target in ['pinyin', 'pinyinEx']:
         return dictionary.get_pinyin(hanzi, type_)
     if target == 'pinyin_tw':
         return dictionary.get_pinyin(hanzi, type_, prefer_tw=True)
@@ -108,7 +108,7 @@ def transcribe_char(hanzi, target, type_):
 def accentuate(text, target):
     assert isinstance(text, list)
 
-    if target not in ['pinyin', 'pinyin_tw']:
+    if target not in ['pinyin', 'pinyinEx', 'pinyin_tw']:
         return text
 
     accentuated = []
@@ -200,7 +200,7 @@ def get_tone_number_pinyin(syllable):
 def split_transcript(transcript, target, grouped=True):
     assert isinstance(transcript, str)
 
-    if target not in ['pinyin', 'pinyin_tw', 'jyutping']:
+    if target not in ['pinyin', 'pinyin_tw', 'jyutping', 'pinyinEx']:
         raise NotImplementedError(target)
 
     def _split(pattern, s):
@@ -229,7 +229,7 @@ def split_transcript(transcript, target, grouped=True):
     separated = []
 
     for text in split(NOT_PINYIN_REGEX, transcript):
-        if target in ['pinyin', 'pinyin_tw']:
+        if target in ['pinyin', 'pinyin_tw', 'pinyinEx']:
             text = _split(PINYIN_REGEX, text)
         elif target == 'jyutping':
             text = _split(JYUTPING_REGEX, text)

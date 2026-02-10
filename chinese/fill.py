@@ -3,21 +3,22 @@
 # Copyright © 2019 Daniel Rich <https://github.com/danielrich>
 # Copyright © 2017-2020 Joseph Lorimer <joseph@lorimer.me>
 # Copyright © 2020 Joe Minicucci <https://joeminicucci.com>
+# Copyright © 2023-2024 Gustaf Carefall <https://github.com/Gustaf-C>
+# Copyright © 2025 Shigeyuki <http://patreon.com/Shigeyuki>
 #
-# This file is part of Chinese Support 3.
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Affero General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
 #
-# Chinese Support 3 is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by the Free
-# Software Foundation, either version 3 of the License, or (at your option) any
-# later version.
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Affero General Public License for more details.
 #
-# Chinese Support 3 is distributed in the hope that it will be useful, but
-# WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-# FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
-# more details.
-#
-# You should have received a copy of the GNU General Public License along with
-# Chinese Support 3.  If not, see <https://www.gnu.org/licenses/>.
+# You should have received a copy of the GNU Affero General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
 
 
 from time import sleep
@@ -133,6 +134,7 @@ def bulk_fill_sound():
     note_ids = mw.col.find_notes('deck:current')
     mw.progress.start(immediate=True, min=0, max=len(note_ids))
 
+    copy = None
     for i, nid in enumerate(note_ids):
         orig = mw.col.get_note(nid)
         copy = dict(orig)
@@ -162,6 +164,11 @@ def bulk_fill_sound():
                 d_already_had_sound += 1
 
     mw.progress.finish()
+
+    if not copy:
+        showInfo("not found")
+        return
+
     msg = '''
 %(n_updated)d new pronunciations downloaded
 
@@ -201,6 +208,7 @@ def bulk_fill_transcript():
     note_ids = mw.col.find_notes('deck:current')
     mw.progress.start(immediate=True, min=0, max=len(note_ids))
 
+    copy = None
     for i, nid in enumerate(note_ids):
         note = mw.col.get_note(nid)
         copy = dict(note)
@@ -230,6 +238,11 @@ def bulk_fill_transcript():
             save_note(note, copy)
 
     mw.progress.finish()
+
+    if not copy:
+        showInfo("not found")
+        return
+
     msg = '''
     <b>Processed:</b> %(hanzi)s<br>
     <b>Filled pinyin:</b> %(pinyin)d notes<br>
@@ -375,6 +388,7 @@ def bulk_fill_hanzi():
 
     d_has_fields = 0
     n_updated = 0
+    copy = None
 
     note_ids = mw.col.find_notes('deck:current')
     mw.progress.start(immediate=True, min=0, max=len(note_ids))
@@ -400,13 +414,19 @@ def bulk_fill_hanzi():
             fill_color(hanzi, copy)
             n_updated = save_note(note, copy)
 
+    mw.progress.finish()
+
+    if not copy:
+        showInfo("not found")
+        return
+
     msg = '''
     <b>Update complete!</b> %(hanzi)s<br>
     <b>Updated:</b> %(filled)d notes''' % {
         'hanzi': get_hanzi(copy),
         'filled': n_updated,
     }
-    mw.progress.finish()
+
     showInfo(msg)
 
 
@@ -424,6 +444,8 @@ def bulk_fill_silhouette():
     note_ids = mw.col.find_notes('deck:current')
     mw.progress.start(immediate=True, min=0, max=len(note_ids))
 
+    copy = None
+
     for i, nid in enumerate(note_ids):
         note = mw.col.get_note(nid)
         copy = dict(note)
@@ -440,13 +462,20 @@ def bulk_fill_silhouette():
             fill_silhouette(hanzi, copy)
             n_updated = save_note(note, copy)
 
+
+    mw.progress.finish()
+
+    if not copy:
+        showInfo("not found")
+        return
+
     msg = '''
     <b>Update complete!</b> %(hanzi)s<br>
     <b>Updated:</b> %(filled)d notes''' % {
         'hanzi': get_hanzi(copy),
         'filled': n_updated,
     }
-    mw.progress.finish()
+
     showInfo(msg)
 
 

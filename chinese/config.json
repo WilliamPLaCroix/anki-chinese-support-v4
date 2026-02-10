@@ -142,11 +142,20 @@
             "Color Cantonese",
             "Cantonese (Color)"
         ],
+        "simpEx": [
+            "Example (simpEx)"
+        ],
+        "pinyinEx": [
+            "Pinyin (simpEx)"
+        ],
         "ruby": [
             "Ruby"
         ],
         "rubyPinyin": [
             "Ruby (Pinyin)"
+        ],
+        "rubyEx": [
+            "Ruby (simpEx)"
         ],
         "rubyPinyinTaiwan": [
             "Ruby (Taiwan Pinyin)"

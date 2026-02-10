@@ -1,21 +1,22 @@
 # Copyright © 2012 Thomas TEMPÉ <thomas.tempe@alysse.org>
 # Copyright © 2017-2020 Joseph Lorimer <joseph@lorimer.me>
 # Copyright © 2020 Joe Minicucci <https://joeminicucci.com>
+# Copyright © 2023-2024 Gustaf Carefall <https://github.com/Gustaf-C>
+# Copyright © 2025 Shigeyuki <http://patreon.com/Shigeyuki>
 #
-# This file is part of Chinese Support 3.
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Affero General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
 #
-# Chinese Support 3 is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by the Free
-# Software Foundation, either version 3 of the License, or (at your option) any
-# later version.
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Affero General Public License for more details.
 #
-# Chinese Support 3 is distributed in the hope that it will be useful, but
-# WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-# FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
-# more details.
-#
-# You should have received a copy of the GNU General Public License along with
-# Chinese Support 3.  If not, see <https://www.gnu.org/licenses/>.
+# You should have received a copy of the GNU Affero General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
 
 from functools import partial
 
@@ -84,25 +85,54 @@ def load_menu():
     add_menu_item('Chinese::Bulk Fill', ('Usage'), bulk_fill_usage)
     add_menu_item('Chinese::Bulk Fill', ('All'), bulk_fill_all)
 
-    add_menu('Chinese::Help')
-    add_menu_item(
-        'Chinese::Help',
-        ('Report a bug or make a feature request'),
-        lambda: openLink(CSR_GITHUB_URL + '/issues'),
-    )
-    add_menu_item('Chinese::Help', ('About...'), showAbout)
+    from ._shige_patch import SHIGE_PATCH_MENU, get_rate_this_url
+    if SHIGE_PATCH_MENU:
+
+        SHIGE_PATCH_MENU_NAME = f'Chinese::Fixed by Shigeඞ'
+        add_menu(SHIGE_PATCH_MENU_NAME)
+        add_menu_item(
+            SHIGE_PATCH_MENU_NAME,
+            ('🚨Report'),
+            lambda: openLink('https://shigeyukey.github.io/shige-addons-wiki/contact.html'),
+        )
+        add_menu_item(
+            SHIGE_PATCH_MENU_NAME,
+            ('📖Wiki'),
+            lambda: openLink('https://shigeyukey.github.io/shige-addons-wiki/chinese-support-v4.html'),
+        )
+        rate_this_url = get_rate_this_url()
+        if rate_this_url:
+            add_menu_item(
+                SHIGE_PATCH_MENU_NAME,
+                ('👍️Rate This'),
+                lambda: openLink(rate_this_url),
+            )
+        add_menu_item(
+            SHIGE_PATCH_MENU_NAME,
+            ('💖Become a Patron'),
+            lambda: openLink('https://www.patreon.com/Shigeyuki'),
+        )
+
+    else: # original
+        add_menu('Chinese::Help')
+        add_menu_item(
+            'Chinese::Help',
+            ('Report a bug or make a feature request'),
+            lambda: openLink(CSR_GITHUB_URL + '/issues'),
+        )
+        add_menu_item('Chinese::Help', ('About...'), showAbout)
 
 
 def unload_menu():
-    for menu in mw.custom_menus.values():
+    for menu in mw.shige_patch_chinese_v4_menu.values():
         mw.form.menubar.removeAction(menu.menuAction())
 
-    mw.custom_menus.clear()
+    mw.shige_patch_chinese_v4_menu.clear()
 
 
 def add_menu(path):
-    if not hasattr(mw, 'custom_menus'):
-        mw.custom_menus = {}
+    if not hasattr(mw, 'shige_patch_chinese_v4_menu'):
+        mw.shige_patch_chinese_v4_menu = {}
 
     if len(path.split('::')) == 2:
         parent_path, child_path = path.split('::')
@@ -111,15 +141,15 @@ def add_menu(path):
         parent_path = path
         has_child = False
 
-    if parent_path not in mw.custom_menus:
+    if parent_path not in mw.shige_patch_chinese_v4_menu:
         parent = QMenu('&' + parent_path, mw)
-        mw.custom_menus[parent_path] = parent
+        mw.shige_patch_chinese_v4_menu[parent_path] = parent
         mw.form.menubar.insertMenu(mw.form.menuTools.menuAction(), parent)
 
-    if has_child and (path not in mw.custom_menus):
+    if has_child and (path not in mw.shige_patch_chinese_v4_menu):
         child = QMenu('&' + child_path, mw)
-        mw.custom_menus[path] = child
-        mw.custom_menus[parent_path].addMenu(child)
+        mw.shige_patch_chinese_v4_menu[path] = child
+        mw.shige_patch_chinese_v4_menu[parent_path].addMenu(child)
 
 
 def add_menu_item(path, text, func, keys=None, checkable=False, checked=False):
@@ -150,4 +180,4 @@ def add_menu_item(path, text, func, keys=None, checkable=False, checked=False):
         mw.form.menuHelp.addAction(action)
     else:
         add_menu(path)
-        mw.custom_menus[path].addAction(action)
+        mw.shige_patch_chinese_v4_menu[path].addAction(action)

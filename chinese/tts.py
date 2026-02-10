@@ -3,8 +3,23 @@
 # Copyright © 2017 Pu Anlai <https://github.com/InspectorMustache>
 # Copyright © 2019 Oliver Rice <orice@apple.com>
 # Copyright © 2017-2021 Joseph Lorimer <joseph@lorimer.me>
+# Copyright © 2023-2024 Gustaf Carefall <https://github.com/Gustaf-C>
+
 # Inspiration: Tymon Warecki
-# License: GNU AGPL, version 3 or later; http://www.gnu.org/copyleft/agpl.html
+
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Affero General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Affero General Public License for more details.
+#
+# You should have received a copy of the GNU Affero General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
 
 import ssl
 from os.path import basename, exists, join
@@ -14,8 +29,8 @@ from urllib.request import Request, urlopen
 
 import requests
 from aqt import mw
-from gtts import gTTS
-from gtts.tts import gTTSError
+from gtts import gTTS # type:ignore
+from gtts.tts import gTTSError # type: ignore
 
 from .aws import AWS4Signer
 
